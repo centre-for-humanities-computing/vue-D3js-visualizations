@@ -11,73 +11,44 @@
 	<script src="https://code.highcharts.com/highcharts.js"></script>
 	<script src="https://code.highcharts.com/modules/data.js"></script>
 	<script src="https://code.highcharts.com/modules/exporting.js"></script>
-	<script src="https://rawgithub.com/phpepe/highcharts-regression/master/highcharts-regression.js?8">
+	<!--<script src="https://rawgithub.com/phpepe/highcharts-regression/master/highcharts-regression.js?8">-->
 	<script src="script.js"></script>
 	<link rel="stylesheet" type="text/css" href="style.css" />
 	<title>Highcharts test</title>
 </head>
 <body>
-	<div id="desktop">
-		<div class="window" data-title="Cases and deaths">
-			<figure class="highcharts-figure">
-				<div id="graph-cases-deaths"></div>
-				<p class="highcharts-description">
-					Basic line chart showing trends in a dataset. This chart includes the
-					<code>series-label</code> module, which adds a label to each line for
-					enhanced readability.
-				</p>
-			</figure>
-		</div>
-		<div class="window" data-title="Share with signs of illness">
-			<figure class="highcharts-figure">
-				<div id="graph-symptoms"></div>
-				<p class="highcharts-description">
-					Basic line chart showing trends in a dataset. This chart includes the
-					<code>series-label</code> module, which adds a label to each line for
-					enhanced readability.
-				</p>
-			</figure>
-		</div>
-		<div class="window closed" data-title="Habits in Denmark">
-			<figure class="highcharts-figure">
-				<div id="graph-habits"></div>
-				<p class="highcharts-description">
-					Basic line chart showing trends in a dataset. This chart includes the
-					<code>series-label</code> module, which adds a label to each line for
-					enhanced readability.
-				</p>
-			</figure>
-		</div>
-		<div class="window" data-title="Optimism and anxiety in Denmark">
-			<figure class="highcharts-figure">
-				<div id="graph-anxiety-optimism"></div>
-				<p class="highcharts-description">
-					Basic line chart showing trends in a dataset. This chart includes the
-					<code>series-label</code> module, which adds a label to each line for
-					enhanced readability.
-				</p>
-			</figure>
-		</div>
-		<div class="window" data-title="Compliance in Denmark">
-			<figure class="highcharts-figure">
-				<div id="graph-compliance"></div>
-				<p class="highcharts-description">
-					Basic line chart showing trends in a dataset. This chart includes the
-					<code>series-label</code> module, which adds a label to each line for
-					enhanced readability.
-				</p>
-			</figure>
-		</div>
-		<div id="taskbar">
-		</div>
-
-		<div id="icons">
-			<a class="openWindow" data-id="0">Open cases and deaths graph</a>
-			<a class="openWindow" data-id="1">Open symptoms graph</a>
-			<a class="openWindow" data-id="2">Open compliance graph</a>
-			<a class="openWindow" data-id="3">Open habits graph</a>
-			<a class="openWindow" data-id="3">Open anxiety and optimism graph</a>
-		</div>
+	<h1 id="title">Dashboard</h1>
+	<div id="wrapper">
+	<div class="window">
+		<figure class="highcharts-figure">
+		<div id="graph-cases-deaths"></div>
+		<p class="highcharts-description"></p>
+	</figure>
+	</div>
+	<div class="window">
+	<figure class="highcharts-figure">
+		<div id="graph-symptoms"></div>
+		<p class="highcharts-description"></p>
+	</figure>
+	</div>
+	<div class="window">
+	<figure class="highcharts-figure">
+		<div id="graph-habits"></div>
+		<p class="highcharts-description"></p>
+	</figure>
+	</div>
+	<div class="window">
+	<figure class="highcharts-figure">
+		<div id="graph-anxiety-optimism"></div>
+		<p class="highcharts-description"></p>
+	</figure>
+	</div>
+	<div class="window">
+	<figure class="highcharts-figure">
+		<div id="graph-compliance"></div>
+		<p class="highcharts-description"></p>
+	</figure>
+	</div>
 	</div>
 </body>
 </html>

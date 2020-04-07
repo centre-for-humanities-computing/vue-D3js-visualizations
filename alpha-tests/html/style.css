@@ -77,7 +77,23 @@ video {
 }
 
 body {
-    line-height: 1
+    line-height: 1;
+    font-family: 'Calibri';
+    text-align: center;
+}
+
+#title {
+    margin: 50px;
+    font-size: 48px;
+}
+
+#wrapper {
+    margin: 50px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
 }
 
 h1 {
@@ -185,11 +201,12 @@ select {
 }
 
 .window {
-    position: absolute;
-    border: 2px solid #AAA;
+    position: relative;
+    border: 1px solid #000F;
     background: #FFF;
-    border-radius: 2px;
-    z-index: 1000;
+    border-radius: 0px;
+    min-width: 800px;
+    min-height: 200px;
 }
 
 .window.closed {
