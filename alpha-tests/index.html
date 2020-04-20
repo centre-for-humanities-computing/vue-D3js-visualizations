@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<title>D3 Scatterplot with Regression Line</title>
+<title>HOPE Dashboard</title>
 <style>
 body {
     text-align: center;
@@ -21,15 +21,19 @@ body {
     min-width: 800px;
     min-height: 400px;
 }
+#introduction {
+    max-width: 800px;
+    margin: auto;
+}
 </style>
 
 <body>
 <h1 id="title">Hope dashboard</h1>
-<p>
+<p id="introduction">
 These interactive plots chart development of symptoms, habits, compliance to safety regulations, and mental health in the population of 8 countries.
 Survey data comes from approximately representative samples of N = 500 collected by Epinion for the HOPE project.
 Case and death counts are from the European Centre for Disease Prevention and Control.
-Hover the mouse over the graph titles or specific points for more information.
+Hover the mouse over the graph titles or specific cases_points for more information.
 </p>
 <div class="wrapper">
     <div class="graph" id="graph-cases-deaths"></div>
@@ -41,17 +45,52 @@ Hover the mouse over the graph titles or specific points for more information.
 </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/regression/1.4.0/regression.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script>
+
+    /**
+    * These colors are chosen in accordance with the Color Universal Design (CUD)
+    * for figures and graphs friendly for color blind people (M. Okabe, K. Ito, 2008)
+    * https://jfly.uni-koeln.de/color/
+    */
+    let graphColors = [
+        "#242424",
+        "#FAA200",
+        "#00B7EC",
+        "#00A077",
+        "#F5E636",
+        "#0077B8",
+        "#F3640D",
+        "#E47EAD"
+    ]
+
+    // Manually inserted cases and deaths data
+    // This graph generally serves as a test bed for the
+    // automated setup in the MakeGraph function later.
+    parseDate = Plotly.d3.time.format("%Y-%m-%d").parse
+    cases = [[parseDate("2020-03-15"), 150],
+        [parseDate("2020-03-23"), 75],
+        [parseDate("2020-03-30"), 150],
+        [parseDate("2020-04-15"), 250]]
+    cases_points = regression('polynomial', cases, 3).points
+    deaths = [[parseDate("2020-03-15"), 0],
+        [parseDate("2020-03-23"), 1],
+        [parseDate("2020-03-30"), 8],
+        [parseDate("2020-04-15"), 15]]
+    deaths_points = regression('polynomial', deaths, 3).points
 
     // The cases and deaths graph
     var data = [{
         x: ["2020-03-15", "2020-03-23", "2020-03-30", "2020-04-15"],
         y: [150, 75, 150, 250],
         type: 'scatter',
+        mode: 'markers',
         name: 'Cases',
         xaxis: 'x1',
         yaxis: 'y1',
-        line: {shape: 'spline', smoothing: 1.3}
+        marker: { color: graphColors[0] }
+//        line: {shape: 'spline', smoothing: 1.3}
     }, {
         x: ["2020-03-15", "2020-03-23", "2020-03-30", "2020-04-15"],
         y: [0, 1, 8, 15],
@@ -59,8 +98,33 @@ Hover the mouse over the graph titles or specific points for more information.
         xaxis: 'x2',
         yaxis: 'y2',
         type: 'scatter',
-        line: {shape: 'spline', smoothing: 1.3}
+        mode: 'markers',
+        marker: { color: graphColors[1]}
+//        line: {shape: 'spline', smoothing: 1.3}
+    }, {
+        x: SelectColumn(cases_points, 0),
+        y: SelectColumn(cases_points, 1),
+        type: 'scatter',
+        mode: 'lines',
+        name: 'Regression',
+        xaxis: 'x1',
+        yaxis: 'y1',
+        line: {shape: 'spline', smoothing: 1.3, color: graphColors[0]},
+        showlegend: false,
+        hovermode: false
+    }, {
+        x: SelectColumn(deaths_points, 0),
+        y: SelectColumn(deaths_points, 1),
+        type: 'scatter',
+        mode: 'lines',
+        name: 'Regression',
+        xaxis: 'x2',
+        yaxis: 'y2',
+        line: {shape: 'spline', smoothing: 1.3, color: graphColors[1]},
+        showlegend: false,
+        hovermode: false
     }];
+
     var layout = {
         yaxis2: {
             domain: [0, 0.5],
@@ -77,20 +141,36 @@ Hover the mouse over the graph titles or specific points for more information.
         },
         xaxis1: {
             domain: [0, 1],
-            anchor: 'y2',
-            title: 'Date'
+            anchor: 'y2'
         },
         type: 'scatter',
         line: {enabled: false, shape: 'spline', smoothing: 1.3},
         legend: {
-            orientation: 'h'
-        }
+            orientation: 'h',
+            x: 0.5,
+            y: -0.15,
+            xanchor: 'center'
+        },
+        hovermode: 'closest',
+        hoverlabel: {},
+        title: "Cases and Deaths in Denmark"
     };
-    Plotly.newPlot('graph-cases-deaths', data, layout);
+
+    var config = {
+        displayModeBar: false
+    }
+
+    Plotly.newPlot('graph-cases-deaths', data, layout, config);
+
+/*_____________________________________________________________________________*/
 
     let settings = {
         type: 'scatter',
-        line: {enabled: false, shape: 'spline', smoothing: 1.3},
+        mode: 'markers',
+        line: {
+            enabled: false, shape: 'spline',
+            smoothing: 1.3
+        },
         yaxis: {
             ticksuffix: "%",
             title: 'Share of the public',
@@ -98,91 +178,158 @@ Hover the mouse over the graph titles or specific points for more information.
             zeroline: false
         },
         xaxis: {
-            title: 'Date'
+            title : "Date"
         },
         legend: {
-            orientation: 'h'
+            orientation: 'h',
+            x: 0.5,
+            y: -0.15,
+            xanchor: 'center'
         },
         split: false,
-        layout: {}
+        layout: {
+            hovermode: 'closest'
+        }
     }
 
-    function MakeGraph( graphObject, settingsObject, url ) {
-        Plotly.d3.csv(url, function(csv){ ProcessCSV(csv, graphObject, settingsObject) } );
+    /**
+    * Creates a graph with specified settings
+    * and graph visualization settings
+    * Assumes a .csv structure of Date,vars[1],vars[2],...,vars[n]
+    * @params graphObject, settingsObject, csv url, config settings
+    */
+    function MakeGraph( graphObject, settingsObject, url, config ) {
+        Plotly.d3.csv(url, function(csv){ ProcessAndShow(csv, graphObject, settingsObject, config) } );
     }
 
-    function ProcessCSV(allRows, graphObject, settingsObject) {
+    function ProcessAndShow(allRows, graphObject, settingsObject, config) {
         let columnNames = Object.keys(allRows[0])
         let dataArray = [[]]
+        let regressionPoints
         let dataObject = {}
+        let data = [{}]
 
-        for (column in columnNames){
+        // Loops through the column names (as proxy of variable amount)
+        $.map(columnNames, function(name, column) {
             dataArray.push([])
-            for (var i = 0; i < allRows.length; i++)
-                dataArray[column].push( allRows[i][columnNames[column]] );
-            dataObject[columnNames[column]] = dataArray[column]
-        }
-        PlotGraph( graphObject, settingsObject, dataObject)
-    }
-
-    function PlotGraph( graphObject, settingsObject, dataObject){
-        var data = [{}]
-        for (const key of Object.keys(dataObject)) {
-            console.log(key)
-            if (key != 'Date'){
+            // Creates a data array instead of the object returned
+            // automatically so it can be used in the series objects
+            $.map(allRows, function(row) {
+                dataArray[column].push(row[name])
+            });
+            dataObject[name] = dataArray[column]
+            if (column != 0) {
+                // Pushes to the series object a list of points for it to
+                // plot in the specified manner
                 data.push({
                     x: dataObject['Date'],
-                    y: dataObject[key],
-                    name: key,
+                    y: dataObject[name],
+                    name: name,
                     type: settingsObject.type,
-                    line: settingsObject.line
+                    line: settingsObject.line,
+                    mode: settingsObject.mode,
+                    marker: {color: graphColors[column - 1]}
                 })
+                // Checks if the graphObject settings says to put regressions in
+                if(graphObject.regression) {
+                    regressionPoints = Regression(dataArray, column)
+                    data.push({
+                        x: SelectColumn(regressionPoints, 0),
+                        y: SelectColumn(regressionPoints, 1),
+                        name: "Regression: " + name,
+                        mode: "lines",
+                        line: {shape: 'spline', smoothing: 1.3, color: graphColors[column - 1]},
+                        hovermode: false,
+                        showlegend: false
+                    })
+                }
             }
-        }
+        });
 
+        // Creates the plot in the specified id with the specified data
+        // with the specified graph object and settings object
         Plotly.newPlot(graphObject.id, data,
             {
                 title: graphObject.title,
                 subtitle: graphObject.subtitle,
                 yaxis: settingsObject.yaxis,
-                legend: settingsObject.legend
-            }
+                legend: settingsObject.legend,
+                hovermode: settingsObject.layout.hovermode
+            },
+            config
         );
-    };
+    }
+
+    /**
+    * Selects the column indices from the data.
+    * @params data = [[]], indices = []
+    * @returns columns = [[]]
+    */
+    function SelectColumn(data, index) {
+        // Assuming data style [[,],[,],...]
+        column = []
+        selected = []
+        for (row in data) {
+            column.push(data[row][index])
+        }
+        return column
+    }
+
+    /**
+    * Returns regression points for the data
+    * @params data = [[Date,],[,],...], index = column,
+    *    taylorLevel = 4 (describes the polynomial fitting)
+    * @returns regressionPoints = [[,]]
+    */
+    function Regression(data, index, taylorLevel = 4) {
+        parseDate = Plotly.d3.time.format("%Y-%m-%d").parse
+        let regressionArray2D = []
+        // Input is rows = [[]]
+        for ( i = 0; i < data[0].length; i++){
+            regressionArray2D.push([parseDate(data[0][i]), data[index][i]])
+        }
+        regressionArray2D = regression('polynomial', regressionArray2D, taylorLevel).points
+        return regressionArray2D
+    }
 
     // Symptoms
     MakeGraph(
-        { id: 'graph-symptoms', title:'Symptoms in Denmark', subtitle: 'Danes with signs of symptoms'},
+        { id: 'graph-symptoms', title:'Symptoms in Denmark', subtitle: 'Danes with signs of symptoms', regression: true},
         settings,
-        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFNPoScuWNEmYshjNUyVrmEKTnTlMnrSh7hLUivm2gRrjKjMYQurcuYy5LyC6vWnlc1HmxkcOTncgb/pub?gid=807408432&single=true&output=csv"
+        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFNPoScuWNEmYshjNUyVrmEKTnTlMnrSh7hLUivm2gRrjKjMYQurcuYy5LyC6vWnlc1HmxkcOTncgb/pub?gid=807408432&single=true&output=csv",
+        config
     )
 
     // Habits
     MakeGraph(
-        { id: 'graph-habits', title:'Habits in Denmark' },
+        { id: 'graph-habits', title:'Habits in Denmark', regression: true },
         settings,
-        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFNPoScuWNEmYshjNUyVrmEKTnTlMnrSh7hLUivm2gRrjKjMYQurcuYy5LyC6vWnlc1HmxkcOTncgb/pub?gid=85087002&single=true&output=csv"
+        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFNPoScuWNEmYshjNUyVrmEKTnTlMnrSh7hLUivm2gRrjKjMYQurcuYy5LyC6vWnlc1HmxkcOTncgb/pub?gid=85087002&single=true&output=csv",
+        config
     )
 
     // Anxiety optimism
     MakeGraph(
-        { id: 'graph-anxiety-optimism', title:'Anxiety and Optimism in Denmark' },
+        { id: 'graph-anxiety-optimism', title:'Anxiety and Optimism in Denmark', regression: true },
         settings,
-        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFNPoScuWNEmYshjNUyVrmEKTnTlMnrSh7hLUivm2gRrjKjMYQurcuYy5LyC6vWnlc1HmxkcOTncgb/pub?gid=922944771&single=true&output=csv"
+        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFNPoScuWNEmYshjNUyVrmEKTnTlMnrSh7hLUivm2gRrjKjMYQurcuYy5LyC6vWnlc1HmxkcOTncgb/pub?gid=922944771&single=true&output=csv",
+        config
     )
 
     // Compliance 1
     MakeGraph(
-        { id: 'graph-compliance-1', title:'Compliance in Denmark' },
+        { id: 'graph-compliance-1', title:'Compliance in Denmark', regression: true },
         settings,
-        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFNPoScuWNEmYshjNUyVrmEKTnTlMnrSh7hLUivm2gRrjKjMYQurcuYy5LyC6vWnlc1HmxkcOTncgb/pub?gid=274738500&single=true&output=csv"
+        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFNPoScuWNEmYshjNUyVrmEKTnTlMnrSh7hLUivm2gRrjKjMYQurcuYy5LyC6vWnlc1HmxkcOTncgb/pub?gid=274738500&single=true&output=csv",
+        config
     )
 
     // Compliance 2
     MakeGraph(
-        { id: 'graph-compliance-2', title:'Compliance in Denmark continued' },
+        { id: 'graph-compliance-2', title:'Compliance in Denmark continued', regression: true },
         settings,
-        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFNPoScuWNEmYshjNUyVrmEKTnTlMnrSh7hLUivm2gRrjKjMYQurcuYy5LyC6vWnlc1HmxkcOTncgb/pub?gid=740358026&single=true&output=csv"
+        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFNPoScuWNEmYshjNUyVrmEKTnTlMnrSh7hLUivm2gRrjKjMYQurcuYy5LyC6vWnlc1HmxkcOTncgb/pub?gid=740358026&single=true&output=csv",
+        config
     )
 </script>
 </body>
