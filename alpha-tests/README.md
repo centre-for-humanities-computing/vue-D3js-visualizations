@@ -1,4 +1,5 @@
 # Alpha test folder
+## [Link to network graph in index2.html](https://esbenkc.com/network)
 This folder is for the HTML versions of the plotly from [the original ShinyR dashboard](https://hope-project.dk/dashboard).
 ## Current state
 ### The current state is usable and ready for Vue.js implementation. It can replicate the current HOPE Dashboard but extending beyond that might need further settings support.

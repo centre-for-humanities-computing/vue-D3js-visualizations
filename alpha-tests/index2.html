@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Adaptive network graph</title>
+  <style>
+    body, html {
+        font-family: "Open Sans";
+        margin: 0;
+        padding: 0;
+        background-color: #100E20;
+        text-align: center;
+        color: #E5E5E5;
+    }
+    #network {
+        margin: auto;
+        display: block;
+    }
+    #info-panel {
+        position: absolute;
+        right: 10px;
+        top: 50vh;
+        transform: translate(0, -50%);
+        max-width: 300px;
+        width: 30vw;
+        max-height: 600px;
+        background-color: #100E2099;
+        text-align: left;
+        padding-left: 20px;
+        padding-right: 20px;
+        border: solid 1px #FFF;
+    }
+    #connections {
+        overflow-y: scroll;
+        height: 400px;
+        padding-right: 10px;
+    }
+    #title {
+        position: absolute;
+        margin:auto;
+        left: 2vw;
+        /* transform: translate(-50%, 0); */
+        top: 20px;
+        color: #FFF;
+    }
+    /* width */
+    ::-webkit-scrollbar {
+    width: 10px;
+    }
+
+    /* Track */
+    ::-webkit-scrollbar-track {
+    background: #100E20;
+    border: solid 1px #fff;
+    }
+
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+    background: #AAA;
+        border: solid 1px #fff;
+    }
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+    background: #FFF;
+    }
+  </style>
+</head>
+<body>
+
+<h1 id="title">Network graph</h1>
+<div id="info-panel">
+    <h2 id="name">NAME</h2>
+    <h3 id="party">PARTY</h3>
+    <ul id="connections">Connected parties</ul>
+</div>
+<canvas id="network" width="1720" height="700"></canvas>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+
+<script>
+/* global d3 */
+document.getElementsByTagName("canvas")[0].setAttribute("width", window.innerWidth);
+document.getElementsByTagName("canvas")[0].setAttribute("height", window.innerHeight);
+
+var canvas = d3.select("#network"),
+  width = canvas.attr("width"),
+  height = canvas.attr("height"),
+  ctx = canvas.node().getContext("2d"),
+  r = 3,
+  color = d3.scaleOrdinal(d3.schemeCategory20),
+  simulation = d3.forceSimulation()
+    .force("x", d3.forceX(width/2))
+    .force("y", d3.forceY(height/2))
+    .force("collide", d3.forceCollide(r+1))
+    .force("charge", d3.forceManyBody()
+      .strength(-200))
+    .force("link", d3.forceLink()
+      .id(function (d) { return d.name; }));
+
+
+d3.json("columbia.json", function (err, graph) {
+  if (err) throw err;
+
+  simulation.nodes(graph.nodes);
+  simulation.force("link")
+    .links(graph.links);
+  simulation.on("tick", update);
+
+    graph.nodes.forEach(function(d) {
+        d['size'] = Math.random() + 1;
+    });
+
+  canvas
+      .call(d3.drag()
+          .container(canvas.node())
+          .subject(dragsubject)
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended));
+
+  function update() {
+    ctx.clearRect(0, 0, width, height);
+
+    ctx.beginPath();
+    ctx.globalAlpha = 0.1;
+    ctx.strokeStyle = "#FFF";
+    graph.links.forEach(drawLink);
+    ctx.stroke();
+
+
+    ctx.globalAlpha = 1.0;
+    ctx.strokeStyle = "#000";
+    ctx.font = "10px Open Sans"
+    graph.nodes.forEach(drawNode);
+    ctx.stroke();
+  }
+
+  function dragsubject() {
+    return simulation.find(d3.event.x, d3.event.y);
+  }
+
+  function updatepanel(s) {
+        document.getElementById("name").innerHTML = s.name;
+        document.getElementById("party").innerHTML = s.party;
+        let connections = "";
+        graph.links.forEach(function(l) {
+            if (l.source.name == s.name) connections = connections + "<li>" + l.target.name + ", " + l.count + "</li>";
+        });
+        document.getElementById("connections").innerHTML = connections;
+    }
+
+    function dragstarted() {
+        if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+        d3.event.subject.fx = d3.event.subject.x;
+        d3.event.subject.fy = d3.event.subject.y;
+        updatepanel(d3.event.subject);
+        console.log(d3.event.subject);
+    }
+});
+
+
+
+
+
+function dragged() {
+  d3.event.subject.fx = d3.event.x;
+  d3.event.subject.fy = d3.event.y;
+}
+
+function dragended() {
+  if (!d3.event.active) simulation.alphaTarget(0);
+  d3.event.subject.fx = null;
+  d3.event.subject.fy = null;
+}
+
+
+
+function drawNode(d) {
+  ctx.beginPath();
+  ctx.fillStyle = color(d.party);
+  ctx.moveTo(d.x, d.y);
+  ctx.arc(d.x, d.y, r * d.size, 0, Math.PI*2);
+  ctx.stroke();
+  ctx.fill();
+  ctx.fillText(d.name, d.x + 10, d.y + 5);
+}
+
+function drawLink(l) {
+  ctx.moveTo(l.source.x, l.source.y);
+  drawCurve(l.source.x, l.source.y, l.target.x, l.target.y, 80);
+  // M23,43A10,10 0 0,1 23,43
+  // ctx.quadraticCurveTo(dr, dr, 0, 1, l.target.x, l.target.y)
+  // ctx.lineTo(l.target.x, l.target.y);
+}
+
+function drawCurve(Ax, Ay, Bx, By, M) {
+
+    // side is either 1 or -1 depending on which side you want the curve to be on.
+    // Find midpoint J
+    var Jx = Ax + (Bx - Ax) / 2
+    var Jy = Ay + (By - Ay) / 2
+
+    // We need a and b to find theta, and we need to know the sign of each to make sure that the orientation is correct.
+    var a = Bx - Ax
+    var asign = (a < 0 ? -1 : 1)
+    var b = By - Ay
+    var bsign = (b < 0 ? -1 : 1)
+    var theta = Math.atan(b / a)
+
+    // Find the point that's perpendicular to J on side
+    var costheta = asign * Math.cos(theta)
+    var sintheta = asign * Math.sin(theta)
+
+    // Find c and d
+    var c = M * sintheta
+    var d = M * costheta
+
+    // Use c and d to find Kx and Ky
+    var Kx = Jx - c
+    var Ky = Jy + d
+
+    ctx.quadraticCurveTo(Kx, Ky, Bx, By)
+}
+
+</script>
+
+</body>
+</html>

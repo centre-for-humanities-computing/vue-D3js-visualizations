@@ -5,12 +5,31 @@
 </template>
 
 <script>
+// make a web form where you can generate graphs that
+// are able to be deleted again. Use .csv URL, settings,
+// config, and layout options. Jesus, epic.
+// Include .csv upload and epic processing.
+
+// Get a bit of the architecture from here:
+// https://www.youtube.com/watch?v=Wy9q22isx3U
+// https://vuejsexamples.net/vue-form-generator/
+// https://github.com/vue-generators/vue-form-generator
+
+// <div class="graph">
+// <button @click="$deleteGraph(
+// </div>
+// methods: {
+// deleteGraph(id) {
+//  this.graphs = this.graphs.filter(graph => graph.id !== id);
+//  }
+// }
+
 import Header from "./components/Header.vue";
 
 export default {
   name: "App",
   components: {
-    Header
+    Header,
   },
   data() {
     return {
@@ -22,7 +41,7 @@ export default {
         "#F5E636",
         "#0077B8",
         "#F3640D",
-        "#E47EAD"
+        "#E47EAD",
       ],
       msg: "HOPE Dashboard",
       urls: [
@@ -30,25 +49,25 @@ export default {
         "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFNPoScuWNEmYshjNUyVrmEKTnTlMnrSh7hLUivm2gRrjKjMYQurcuYy5LyC6vWnlc1HmxkcOTncgb/pub?gid=85087002&single=true&output=csv",
         "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFNPoScuWNEmYshjNUyVrmEKTnTlMnrSh7hLUivm2gRrjKjMYQurcuYy5LyC6vWnlc1HmxkcOTncgb/pub?gid=922944771&single=true&output=csv",
         "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFNPoScuWNEmYshjNUyVrmEKTnTlMnrSh7hLUivm2gRrjKjMYQurcuYy5LyC6vWnlc1HmxkcOTncgb/pub?gid=274738500&single=true&output=csv",
-        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFNPoScuWNEmYshjNUyVrmEKTnTlMnrSh7hLUivm2gRrjKjMYQurcuYy5LyC6vWnlc1HmxkcOTncgb/pub?gid=740358026&single=true&output=csv"
+        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFNPoScuWNEmYshjNUyVrmEKTnTlMnrSh7hLUivm2gRrjKjMYQurcuYy5LyC6vWnlc1HmxkcOTncgb/pub?gid=740358026&single=true&output=csv",
       ],
       layout: {
         yaxis2: {
           domain: [0, 0.5],
-          anchor: "x1"
+          anchor: "x1",
         },
         xaxis2: {
           domain: [0, 1],
           anchor: "y1",
-          visible: false
+          visible: false,
         },
         yaxis1: {
           domain: [0.5, 1],
-          anchor: "x2"
+          anchor: "x2",
         },
         xaxis1: {
           domain: [0, 1],
-          anchor: "y2"
+          anchor: "y2",
         },
         type: "scatter",
         line: { enabled: false, shape: "spline", smoothing: 1.3 },
@@ -56,14 +75,14 @@ export default {
           orientation: "h",
           x: 0.5,
           y: -0.15,
-          xanchor: "center"
+          xanchor: "center",
         },
         hovermode: "closest",
         hoverlabel: {},
-        title: "Cases and Deaths in Denmark"
+        title: "Cases and Deaths in Denmark",
       },
       config: {
-        displayModeBar: false
+        displayModeBar: false,
       },
       settings: {
         type: "scatter",
@@ -71,30 +90,35 @@ export default {
         line: {
           enabled: false,
           shape: "spline",
-          smoothing: 1.3
+          smoothing: 1.3,
         },
         yaxis: {
           ticksuffix: "%",
           title: "Share of the public",
           range: [0, 100],
-          zeroline: false
+          zeroline: false,
         },
         xaxis: {
-          title: "Date"
+          title: "Date",
         },
         legend: {
           orientation: "h",
           x: 0.5,
           y: -0.15,
-          xanchor: "center"
+          xanchor: "center",
         },
         split: false,
         layout: {
-          hovermode: "closest"
-        }
-      }
+          hovermode: "closest",
+        },
+      },
     };
-  }
+  },
+  methods: {
+    deleteGraph(id) {
+      this.graphs = this.graphs.filter((graph) => graph.id !== id);
+    },
+  },
 };
 </script>
 
