@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <Header :msg="msg" />
+    <CasesDeaths />
   </div>
 </template>
 
@@ -23,13 +24,14 @@
 //  this.graphs = this.graphs.filter(graph => graph.id !== id);
 //  }
 // }
-
 import Header from "./components/Header.vue";
+import CasesDeaths from "./components/CasesDeaths.vue";
 
 export default {
   name: "App",
   components: {
     Header,
+    CasesDeaths,
   },
   data() {
     return {
