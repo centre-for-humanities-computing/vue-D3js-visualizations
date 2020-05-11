@@ -102,6 +102,8 @@ var canvas = d3.select("#network"),
 d3.json("columbia.json", function (err, graph) {
   if (err) throw err;
 
+  console.log(graph.nodes);
+
   simulation.nodes(graph.nodes);
   simulation.force("link")
     .links(graph.links);
